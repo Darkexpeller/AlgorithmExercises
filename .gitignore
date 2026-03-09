@@ -1,2 +1,5 @@
 .vscode/
 *.exe
+*.pfb
+*.i64
+*.pcap

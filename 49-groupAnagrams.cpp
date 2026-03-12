@@ -6,55 +6,68 @@
 // 字符串 "nat" 和 "tan" 是字母异位词，因为它们可以重新排列以形成彼此。
 // 字符串 "ate" ，"eat" 和 "tea" 是字母异位词，因为它们可以重新排列以形成彼此。
 #include<vector>
+#include <cstdint>
 #include<stdio.h>
 #include<string>
 #include <unordered_map>
 #include<iostream>
+#include <numeric>
+#include<array>
 using namespace std;
 class Solution {
 public:
-    bool isAnagram(vector<int>& s,vector<int>& t){
-        //int CharConunter[26];
-        // for (int i = 0; i < s.size();++i){
-        //     CharConunter[s[i] - 'a']++;
-        // }
-        for (int i = 0; i < 26;i++){
-            if(s[i]!=t[i])
-                return false;
-        }
-        return true;
-    }
 
     vector<vector<string>> groupAnagrams(vector<string>& strs) {
         vector<vector<string>> ret;
         if(strs.size()==0)
             return ret;
-        vector<vector<int> *> CharConunters(strs.size());
+        auto arrayHashFun = [fn = hash<int>{}](const array<uint8_t, 26> &arr) -> size_t
+        {
+            return accumulate(arr.begin(), arr.end(), 0u,[&](size_t acc,uint8_t num){
+                return acc ^ (fn((int)num) + 0x9e3779b9 + (acc << 6) + (acc >> 2));
+            });
+        };
+        unordered_map<array<uint8_t, 26>, vector<string>, decltype(arrayHashFun)> StringMap(0,arrayHashFun);
         for (int i = 0; i < strs.size();++i){
-            vector<int> *Conunter=new vector<int>(26);
+            array<uint8_t, 26> Conunter={0};
             
             for (int j = 0; j < strs[i].size();++j){
-                (*Conunter)[strs[i][j] - 'a']++;
+                Conunter[strs[i][j] - 'a']++;
             }
-            CharConunters[i]=Conunter;
+            StringMap[Conunter].emplace_back(std::move(strs[i]));
         }
         
-        vector<int> HasGrouped(strs.size());
-        for (int i = 0; i < strs.size();++i){
-            if(HasGrouped[i]==1)
-                continue;
-            HasGrouped[i] = 1;
-            vector<string> group;
-            group.push_back(strs[i]);
-            for (int k = i + 1; k < strs.size();++k){
-                if(HasGrouped[k]==0 && isAnagram(*CharConunters[i],*CharConunters[k])){
-                    group.push_back(strs[k]);
-                    HasGrouped[k] = 1;
-                }
-            }
-            ret.push_back(group);
+        for (auto it = StringMap.begin(); it != StringMap.end(); ++it) {
+            ret.emplace_back(std::move(it->second));
+            
         }
         return ret;
+    }
+};
+class LeeCodeSolution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // 自定义对 array<int, 26> 类型的哈希函数
+        auto arrayHash = [fn = hash<int>{}] (const array<int, 26>& arr) -> size_t {
+            return accumulate(arr.begin(), arr.end(), 0u, [&](size_t acc, int num) {
+                return (acc << 1) ^ fn(num);
+            });
+        };
+
+        unordered_map<array<int, 26>, vector<string>, decltype(arrayHash)> mp(0, arrayHash);
+        for (string& str: strs) {
+            array<int, 26> counts{};
+            int length = str.length();
+            for (int i = 0; i < length; ++i) {
+                counts[str[i] - 'a'] ++;
+            }
+            mp[counts].emplace_back(str);
+        }
+        vector<vector<string>> ans;
+        for (auto it = mp.begin(); it != mp.end(); ++it) {
+            ans.emplace_back(it->second);
+        }
+        return ans;
     }
 };
 

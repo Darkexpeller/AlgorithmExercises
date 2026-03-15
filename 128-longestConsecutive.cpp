@@ -42,8 +42,6 @@ public:
                 continue;
             int first = *it;
             int second = *it;
-
-            
             for (int i=second+1;;++i){
                 if(numSet.find(i)==numSet.end())
                     break;

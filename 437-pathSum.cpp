@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include<unordered_set>
+#include<unordered_map>
 #include<queue>
 using namespace std;
 struct TreeNode
@@ -21,21 +22,36 @@ struct TreeNode
 class Solution {
 public:
     int pathSum(TreeNode* root, int targetSum) {
-        target = targetSum;
-        return path(root, targetSum);
+        unordered_map<int,int> prefix_sum_map;
+        prefix_sum_map[0] = 1;
+        return path(root, targetSum, prefix_sum_map,0);
+
     }
 
-    int path(TreeNode* root, int residueSum){
+    int path(TreeNode* root, int targetSum,unordered_map<int,int> &prefix_sum_map,int prefix){
         if(!root)
             return 0;
-        printf("_%d_%d_ ", root->val,residueSum);
-        if((residueSum-root->val) == 0){
-            printf("residueSum-root->val =0 :%d \n", root->val);
+        int left=0;
+        int right = 0;
+        int thispath = 0;
+        int curr_sum = prefix + root->val;
+        prefix_sum_map[curr_sum]++;
 
-            return pathSum(root->left, target) + pathSum(root->right, target) +1+pathSum(root->left,0) + pathSum(root->right, 0);
-        }   
-        else 
-            return pathSum(root->left, residueSum - root->val) + pathSum(root->right, residueSum - root->val)+pathSum(root->left, target) + pathSum(root->right, target);
-    }
-    int target = 0;
+        auto it = prefix_sum_map.find(curr_sum - targetSum);
+        if( prefix_sum_map.count(curr_sum - targetSum))
+            thispath = prefix_sum_map[curr_sum - targetSum];
+
+        if (root->left){
+            left = path(root, targetSum, prefix_sum_map, root->val + prefix);
+            //prefix_sum_map[root->val + prefix + root->left->val]--;
+        }
+       
+
+        if (root->right){
+            right = path(root, targetSum, prefix_sum_map, root->val + prefix);
+            //prefix_sum_map[root->val + prefix + root->right->val]--;
+        }
+        prefix_sum_map[curr_sum]--;
+        return thispath + left + right;
+        }
 };

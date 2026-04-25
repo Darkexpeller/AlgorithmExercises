@@ -29,11 +29,11 @@ public:
         int root_val = postorder[post_right];
         root->val = root_val;
         int inorder_index = index_map[root_val];
-        //计算左子树的大小
-        int left_tree_size = inorder_index - in_left;
+        //计算右子树的大小
+        int right_tree_size = in_right-inorder_index;
 
-        root->left = myBuildTree(preorder, pre_left + 1, pre_left+left_tree_size, in_left, inorder_index - 1);
-        root->right = myBuildTree(preorder,pre_left+left_tree_size+1, pre_right, inorder_index + 1, in_right);
+        root->left = myBuildTree(postorder, post_left, post_right - right_tree_size - 1, in_left, inorder_index - 1);
+        root->right = myBuildTree(postorder, post_right - right_tree_size, post_right - 1, inorder_index + 1, in_right - 1);
         return root;
     }
 };

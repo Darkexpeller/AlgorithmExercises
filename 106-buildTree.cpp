@@ -33,7 +33,7 @@ public:
         int right_tree_size = in_right-inorder_index;
 
         root->left = myBuildTree(postorder, post_left, post_right - right_tree_size - 1, in_left, inorder_index - 1);
-        root->right = myBuildTree(postorder, post_right - right_tree_size, post_right - 1, inorder_index + 1, in_right - 1);
+        root->right = myBuildTree(postorder, post_right - right_tree_size, post_right - 1, inorder_index + 1, in_right);
         return root;
     }
 };
